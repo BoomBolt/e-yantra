@@ -1,7 +1,7 @@
 import cv2 as cv2
 import numpy as np
 
-
+#saving feed from external usb web cam
 
 video = cv2.VideoCapture(1)
 
