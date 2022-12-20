@@ -34,16 +34,11 @@ from zmqRemoteApi import RemoteAPIClient
 import zmq
 import math
 from cv2 import aruco
-from pyzbar import pyzbar
+#from pyzbar import pyzbar
 ##############################################################
 
 #################################  ADD UTILITY FUNCTIONS HERE  #######################
-global flag
-flag = False
-global top_left_x
-global top_left_y
-global bot_right_x
-global bot_right_y
+
 
 
 def find_centres(image, arr):
@@ -109,21 +104,17 @@ def perspective_transform(image):
     applying perspective transform on it. Using this function, you should
     crop out the arena from the full frame you are receiving from the 
     overhead camera feed.
-
     HINT:
     Use the ArUco markers placed on four corner points of the arena in order
     to crop out the required portion of the image.
-
     Input Arguments:
     ---
     `image` :	[ numpy array ]
             numpy array of image returned by cv2 library 
-
     Returns:
     ---
     `warped_image` : [ numpy array ]
             return cropped arena image as a numpy array
-
     Example call:
     ---
     warped_image = perspective_transform(image)
@@ -131,6 +122,11 @@ def perspective_transform(image):
     warped_image = []
 #################################  ADD YOUR CODE HERE  ###############################
     centres = []
+    global flag
+    global top_left_x
+    global top_left_y 
+    global bot_right_x
+    global bot_right_y
     ori = image
     if (not flag):
         get_aruco_centers(image, centres)
@@ -161,12 +157,10 @@ def transform_values(image):
     This function takes the image as an argument and returns the 
     position and orientation of the ArUco marker (with id 5), in the 
     CoppeliaSim scene.
-
     Input Arguments:
     ---
     `image` :	[ numpy array ]
             numpy array of image returned by camera
-
     Returns:
     ---
     `scene_parameters` : [ list ]
@@ -175,12 +169,10 @@ def transform_values(image):
             c_x is the transformed x co-ordinate [float]
             c_y is the transformed y co-ordinate [float]
             c_angle is the transformed angle [angle]
-
     HINT:
         Initially the image should be cropped using perspective transform 
         and then values of ArUco (5) should be transformed to CoppeliaSim
         scale.
-
     Example call:
     ---
     scene_parameters = transform_values(image)
@@ -212,44 +204,48 @@ def set_values(scene_parameters):
     This function takes the scene_parameters, i.e. the transformed values for
     position and orientation of the ArUco marker, and sets the position and 
     orientation in the CoppeliaSim scene.
-
     Input Arguments:
     ---
     `scene_parameters` :	[ list ]
             list of co-ordinates and orientation obtained from transform_values()
             function
-
     Returns:
     ---
     None
-
     HINT:
         Refer Regular API References of CoppeliaSim to find out functions that can
         set the position and orientation of an object.
-
     Example call:
     ---
     set_values(scene_parameters)
     """
     # aruco_handle = sim.getObject('/aruco_5')
 #################################  ADD YOUR CODE HERE  ###############################
-    x = scene_parameters[0]
-    y = scene_parameters[1]
-    handle = sim.getObjectHandle('/aruco_5')
-    pos = sim.getObjectPosition(handle, -1)
-    print(pos)
-    sim.setObjectPosition(handle, -1, [x, y, 0.1])
+    if len(scene_parameters) > 0:
+        x = scene_parameters[0]
+        y = scene_parameters[1]
+        handle = sim.getObjectHandle('/aruco_5')
+        pos = sim.getObjectPosition(handle, -1)
+        print(pos)
+        sim.setObjectPosition(handle, -1, [x, y, 0.1])
 ######################################################################################
 
     return None
 
 
+
 if __name__ == "__main__":
+    
+    flag = False
+    top_left_x = 0
+    top_left_y = 0
+    bot_right_x = 0
+    bot_right_y = 0
     client = RemoteAPIClient()
     sim = client.getObject('sim')
     task_1b = __import__('task_1b')
 #################################  ADD YOUR CODE HERE  ################################
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(1)
     while (True):
         _, frame0 = cap.read()
         frame = perspective_transform(frame0)
